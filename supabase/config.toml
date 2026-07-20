@@ -1,0 +1,9 @@
+# Supabase CLI project config.
+# The CLI wasn't installed on this machine when this file was created, so this is a
+# minimal, hand-written config rather than CLI-generated output. Once you have the
+# Supabase CLI installed, running `supabase init` again (or `supabase link`) will
+# fill in/verify the rest against your actual CLI version — it won't touch migrations.
+project_id = "kaiju-vault"
+
+[db]
+major_version = 15
