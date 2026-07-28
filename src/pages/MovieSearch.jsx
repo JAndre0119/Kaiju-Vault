@@ -35,8 +35,8 @@ function MovieSearch() {
   }
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>Kaiju Vault — Movie Search</h1>
+    <div>
+      <h2>Movie Search</h2>
 
       <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
         <input
