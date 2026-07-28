@@ -1,20 +1,97 @@
 import { Router } from 'express'
 import { supabase } from '../db/supabaseClient.js'
 import { requireAuth } from '../middleware/auth.js'
+import { searchForTmdbId, fetchMovieDetails, buildFilmRecord } from '../db/tmdb.js'
 
 const router = Router()
 
 const ANTHROPIC_MODEL = 'claude-opus-5'
 const ANTHROPIC_MAX_TOKENS = 500
+const UNIQUE_VIOLATION = '23505'
 const EMPTY_WATCHLIST_MESSAGE =
   'Add some films to your watchlist first, then I can recommend something similar!'
+
+const FILM_COLUMNS = 'id, slug, title, description, genre, year, poster_url, tmdb_id'
 
 function buildPrompt(films) {
   const list = films
     .map((film) => `- ${film.title}${film.genre ? ` (${film.genre})` : ''}`)
     .join('\n')
 
-  return `Here is a user's kaiju/monster movie watchlist:\n${list}\n\nRecommend exactly one additional kaiju or monster movie they might enjoy that is not already on this list. Respond with just the movie title followed by a one or two sentence reason why, no preamble.`
+  return `Here is a user's kaiju/monster movie watchlist:\n${list}\n\nRecommend exactly one additional kaiju or monster movie they might enjoy that is not already on this list.\n\nYour entire response must be exactly two lines, in this literal format, with no markdown, no bold, no asterisks, no year, and no other commentary before or after:\nTITLE: <the movie title only>\nREASON: <a one or two sentence reason why>`
+}
+
+function stripMarkdown(text) {
+  return text.replace(/\*+/g, '').trim()
+}
+
+function parseRecommendation(text) {
+  const titleMatch = text.match(/TITLE:\s*(.+)/i)
+  const reasonMatch = text.match(/REASON:\s*([\s\S]+)/i)
+
+  if (titleMatch) {
+    return {
+      title: stripMarkdown(titleMatch[1]).replace(/\s*\(\d{4}\)\s*$/, '').trim(),
+      reason: reasonMatch ? stripMarkdown(reasonMatch[1]) : stripMarkdown(text),
+    }
+  }
+
+  // The model ignored the requested format — fall back to pulling a title out
+  // of the first line, which models tend to write as "Title (Year) — reason".
+  const firstLine = stripMarkdown(text.split('\n')[0])
+  const fallbackMatch = firstLine.match(/^([^—:-]+?)(?:\s*\(\d{4}\))?\s*(?:[—:-]|$)/)
+
+  return {
+    title: fallbackMatch ? fallbackMatch[1].trim() : null,
+    reason: stripMarkdown(text),
+  }
+}
+
+async function findOrCreateFilmByTitle(title) {
+  const { data: existing, error: lookupError } = await supabase
+    .from('films')
+    .select(FILM_COLUMNS)
+    .ilike('title', title)
+    .maybeSingle()
+
+  if (lookupError) {
+    throw lookupError
+  }
+
+  if (existing) {
+    return existing
+  }
+
+  const searchQuery = title.replace(/\s*\(\d{4}\)\s*$/, '').trim()
+  const tmdbId = await searchForTmdbId(searchQuery)
+  const details = await fetchMovieDetails(tmdbId)
+  const film = buildFilmRecord(tmdbId, details)
+
+  const { data: inserted, error: insertError } = await supabase
+    .from('films')
+    .insert(film)
+    .select(FILM_COLUMNS)
+    .single()
+
+  if (insertError) {
+    if (insertError.code === UNIQUE_VIOLATION) {
+      const { data: raceFilm, error: raceError } = await supabase
+        .from('films')
+        .select(FILM_COLUMNS)
+        .eq('tmdb_id', tmdbId)
+        .maybeSingle()
+
+      if (raceError || !raceFilm) {
+        throw insertError
+      }
+
+      return raceFilm
+    }
+
+    throw insertError
+  }
+
+  return inserted
 }
 
 router.post('/', requireAuth, async (req, res) => {
@@ -65,7 +142,19 @@ router.post('/', requireAuth, async (req, res) => {
       throw new Error('Anthropic API response contained no text block')
     }
 
-    return res.json({ recommendation: textBlock.text })
+    const { title, reason } = parseRecommendation(textBlock.text)
+
+    let film = null
+    if (title) {
+      try {
+        film = await findOrCreateFilmByTitle(title)
+      } catch (filmErr) {
+        // Non-fatal: still return the text recommendation, just without a linkable film.
+        console.error(`Failed to resolve recommended film "${title}":`, filmErr)
+      }
+    }
+
+    return res.json({ recommendation: reason, title, film })
   } catch (err) {
     console.error('Failed to get recommendation from Anthropic:', err)
     return res.status(502).json({
