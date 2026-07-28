@@ -7,7 +7,14 @@ import filmsRouter from './routes/films.js'
 import watchlistRouter from './routes/watchlist.js'
 
 const app = express()
-app.use(cors())
+
+// FRONTEND_URL unset (e.g. before Vercel gives you a URL) → allow any origin.
+// Once set, restrict to it plus local dev, rather than staying wide open.
+const corsOptions = process.env.FRONTEND_URL
+  ? { origin: ['http://localhost:5173', process.env.FRONTEND_URL] }
+  : { origin: '*' }
+
+app.use(cors(corsOptions))
 app.use(express.json())
 
 app.use('/auth', authRouter)
