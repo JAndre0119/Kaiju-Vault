@@ -1,66 +1,219 @@
+/* ==========================================================================
+   Kaiju Vault — comic-book / monster-movie poster theme
+
+   Fonts:   'Bangers'  — display/poster lettering (site title, h1)
+            'Oswald'   — condensed all-caps sans (h2/h3, buttons, nav, labels)
+   Palette: deep charcoal/black backgrounds, radiation-green + warning-orange
+            + blood-red accents. See variables below — reuse these on any
+            new page rather than picking new colors.
+   ========================================================================== */
+
+:root {
+  --color-bg: #0d0d0d;
+  --color-bg-elevated: #1b1b1b;
+  --color-bg-elevated-2: #242424;
+  --color-text: #f3efe4;
+  --color-text-muted: #c2bdae;
+  --color-border: #f3efe4;
+
+  --color-green: #39ff14;
+  --color-orange: #ff8a1e;
+  --color-red: #e2242c;
+
+  --font-display: 'Bangers', 'Oswald', cursive;
+  --font-condensed: 'Oswald', system-ui, sans-serif;
+  --font-body: system-ui, sans-serif;
+
+  --border-thick: 3px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  background-color: #f7f7f7;
-  color: #1a1a1a;
-  font-family: system-ui, sans-serif;
+  background-color: var(--color-bg);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1.5px);
+  background-size: 14px 14px;
+  color: var(--color-text);
+  font-family: var(--font-body);
 }
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  letter-spacing: 0.03em;
+  text-shadow: 3px 3px 0 var(--color-red);
+  margin: 0 0 0.5rem;
+}
+
+h2 {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-size: 1.5rem;
+  color: var(--color-green);
+  border-left: var(--border-thick) solid var(--color-green);
+  padding-left: 0.6rem;
+  margin: 2rem 0 1rem;
+}
+
+h3 {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem;
+}
+
+/* --- Navbar --- */
 
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
   padding: 1rem 2rem;
-  background-color: #1a1a2e;
-  color: white;
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text);
+  border-bottom: var(--border-thick) solid var(--color-green);
 }
 
 .navbar-brand {
-  color: white;
-  font-weight: bold;
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-green);
+  text-shadow: 2px 2px 0 var(--color-red);
   text-decoration: none;
 }
 
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
 .navbar-links a {
-  color: white;
+  color: var(--color-text);
   text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .navbar-links a:hover {
-  text-decoration: underline;
+  color: var(--color-green);
+  border-bottom-color: var(--color-green);
 }
 
 .navbar-user {
-  opacity: 0.8;
+  color: var(--color-orange);
 }
 
+/* --- Layout --- */
+
 .page-container {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 2rem;
 }
 
 .page-status {
-  padding: 2rem;
+  padding: 3rem 2rem;
   text-align: center;
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
 }
+
+/* --- Comic-poster accents --- */
+
+.hero {
+  background-color: var(--color-bg-elevated);
+  border: var(--border-thick) solid var(--color-border);
+  border-bottom: none;
+  padding: 2.5rem 2rem 3rem;
+  text-align: center;
+  clip-path: polygon(
+    0 0, 100% 0, 100% 90%,
+    95% 100%, 90% 88%, 85% 100%, 80% 88%, 75% 100%, 70% 88%,
+    65% 100%, 60% 88%, 55% 100%, 50% 88%, 45% 100%, 40% 88%,
+    35% 100%, 30% 88%, 25% 100%, 20% 88%, 15% 100%, 10% 88%,
+    5% 100%, 0 90%
+  );
+}
+
+.hero h1 {
+  margin-bottom: 0.75rem;
+}
+
+.hero p {
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.action-divider {
+  height: 10px;
+  margin: 2rem 0;
+  border-top: 2px solid var(--color-border);
+  border-bottom: 2px solid var(--color-border);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-green) 0,
+    var(--color-green) 10px,
+    var(--color-orange) 10px,
+    var(--color-orange) 20px
+  );
+}
+
+/* --- Alerts --- */
 
 .error {
-  color: #b00020;
-  background-color: #fdecea;
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
+  background-color: #2a0d0f;
+  border: 2px solid var(--color-red);
+  color: #ffb3b8;
+  padding: 0.6rem 0.9rem;
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.9rem;
 }
 
+/* --- Auth page --- */
+
 .auth-page {
-  max-width: 360px;
-  margin: 0 auto;
+  max-width: 420px;
+  margin: 2rem auto;
+  background-color: var(--color-bg-elevated);
+  border: var(--border-thick) solid var(--color-border);
+  padding: 2rem;
+  box-shadow: 6px 6px 0 var(--color-green);
+}
+
+.auth-page h1 {
+  text-align: center;
+  font-size: 2.25rem;
 }
 
 .auth-form {
@@ -72,92 +225,292 @@ body {
 .auth-form label {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.9rem;
+  gap: 0.35rem;
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
 }
 
 .auth-form input {
-  padding: 0.5rem;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  padding: 0.6rem 0.7rem;
   font-size: 1rem;
+  border-radius: 2px;
+  font-family: var(--font-body);
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.25);
 }
 
 .link-button {
+  display: block;
+  width: fit-content;
+  margin: 1.25rem auto 0;
   background: none;
   border: none;
-  color: #1a1a2e;
+  box-shadow: none;
+  padding: 0;
+  color: var(--color-orange);
   text-decoration: underline;
   cursor: pointer;
-  margin-top: 1rem;
-  padding: 0;
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.85rem;
 }
+
+.link-button:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  background: none;
+  color: var(--color-green);
+}
+
+/* --- Buttons --- */
 
 button {
   cursor: pointer;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  border: 1px solid #1a1a2e;
-  background-color: #1a1a2e;
-  color: white;
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.25rem;
+  border: var(--border-thick) solid var(--color-bg);
+  border-radius: 2px;
+  background-color: var(--color-green);
+  color: var(--color-bg);
+  box-shadow: 4px 4px 0 var(--color-red);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translate(-2px, -2px) rotate(-1deg);
+  box-shadow: 6px 6px 0 var(--color-red);
+  background-color: var(--color-orange);
+}
+
+button:active:not(:disabled) {
+  transform: translate(0, 0) rotate(0deg);
+  box-shadow: 2px 2px 0 var(--color-red);
 }
 
 button:disabled {
-  opacity: 0.6;
+  opacity: 0.45;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
+button:focus-visible {
+  outline: 3px solid var(--color-green);
+  outline-offset: 2px;
+}
+
+.btn-danger {
+  background-color: var(--color-red);
+  color: var(--color-text);
+  box-shadow: 4px 4px 0 var(--color-green);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #ff4550;
+  box-shadow: 6px 6px 0 var(--color-green);
+}
+
+/* --- Recommendation panel --- */
+
 .recommendation-section {
-  margin-bottom: 2rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  text-align: center;
+  background-color: var(--color-bg-elevated);
+  border: var(--border-thick) solid var(--color-orange);
 }
 
 .recommendation-card {
   margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background-color: white;
+  padding: 1rem 1.25rem;
+  text-align: left;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-green);
+  color: var(--color-text);
+  font-family: var(--font-body);
 }
+
+.recommendation-film {
+  max-width: 220px;
+  margin: 1rem auto 0;
+}
+
+/* --- Search form (Home / MovieSearch) --- */
+
+.search-form {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-form input {
+  flex: 1;
+  background-color: var(--color-bg-elevated);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 2px;
+  font-family: var(--font-body);
+}
+
+.search-form input:focus {
+  outline: none;
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.25);
+}
+
+/* --- Film poster cards (watchlist, catalog, search results) --- */
 
 .film-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .film-card {
   display: flex;
-  gap: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 1rem;
-  background-color: white;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-bg-elevated);
+  border: var(--border-thick) solid var(--color-green);
+  border-radius: 2px;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.film-card img {
-  border-radius: 4px;
-  height: fit-content;
+.film-card:hover {
+  transform: rotate(-1.5deg) scale(1.03);
+  border-color: var(--color-orange);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.6);
+}
+
+.film-card-poster {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.film-card-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.film-card-poster-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.film-card-title-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.75rem 0.75rem 0.6rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0));
+}
+
+.film-card-title-overlay h3 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  text-shadow: 2px 2px 0 var(--color-red);
+  margin: 0 0 0.15rem;
+}
+
+.film-card-meta {
+  font-family: var(--font-condensed);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-orange);
+  margin: 0;
 }
 
 .film-card-body {
+  display: flex;
+  flex-direction: column;
   flex: 1;
-}
-
-.film-card-body h3 {
-  margin: 0 0 0.25rem;
-}
-
-.film-genre {
-  font-size: 0.85rem;
-  color: #555;
-  margin: 0 0 0.5rem;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
 }
 
 .film-description {
   font-size: 0.85rem;
-  color: #333;
+  line-height: 1.4;
+  color: var(--color-text-muted);
 }
 
 .film-card-action {
-  display: flex;
-  align-items: flex-start;
+  margin-top: auto;
+}
+
+.film-card-action button {
+  width: 100%;
+}
+
+/* --- Responsive --- */
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .navbar-brand {
+    font-size: 1.5rem;
+  }
+
+  .navbar-links {
+    gap: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .page-container {
+    padding: 1.25rem;
+  }
+
+  .hero {
+    padding: 1.75rem 1.25rem 2.25rem;
+  }
+
+  .auth-page {
+    margin: 1rem auto;
+    padding: 1.25rem;
+  }
+
+  .film-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
 }

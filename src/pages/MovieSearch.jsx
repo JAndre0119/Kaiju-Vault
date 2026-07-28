@@ -38,30 +38,35 @@ function MovieSearch() {
     <div>
       <h2>Movie Search</h2>
 
-      <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+      <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for a kaiju movie..."
-          style={{ flex: 1, padding: '0.5rem' }}
         />
         <button type="submit" disabled={loading}>
           {loading ? 'Searching...' : 'Search'}
         </button>
       </form>
 
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p className="error">Error: {error}</p>}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="film-grid">
         {results.map((movie) => (
-          <div key={movie.id} style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid #ccc', paddingBottom: '1rem' }}>
-            {movie.poster_path && (
-              <img src={`${TMDB_IMAGE_BASE}${movie.poster_path}`} alt={movie.title} width={100} />
-            )}
-            <div>
-              <h3>{movie.title}</h3>
-              <p>{movie.overview}</p>
+          <div key={movie.id} className="film-card">
+            <div className="film-card-poster">
+              {movie.poster_path ? (
+                <img src={`${TMDB_IMAGE_BASE}${movie.poster_path}`} alt={movie.title} />
+              ) : (
+                <div className="film-card-poster-placeholder">{movie.title}</div>
+              )}
+              <div className="film-card-title-overlay">
+                <h3>{movie.title}</h3>
+              </div>
+            </div>
+            <div className="film-card-body">
+              <p className="film-description">{movie.overview}</p>
             </div>
           </div>
         ))}

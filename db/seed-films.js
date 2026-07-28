@@ -1,14 +1,9 @@
 import '../env.js'
 
 import { supabase } from './supabaseClient.js'
+import { searchForTmdbId, fetchMovieDetails, buildFilmRecord } from './tmdb.js'
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY
-const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500'
 const REQUEST_DELAY_MS = 250
-
-if (!TMDB_API_KEY) {
-  throw new Error('Missing TMDB_API_KEY environment variable')
-}
 
 // Add more titles here — either { query: 'Some Title' } to resolve the id via
 // TMDB search, or { tmdbId: 12345 } if you already know the exact TMDB movie id.
@@ -20,43 +15,6 @@ const FILMS_TO_SEED = [
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-function slugify(title) {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
-
-async function searchForTmdbId(query) {
-  const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`
-  const res = await fetch(url)
-
-  if (!res.ok) {
-    throw new Error(`TMDB search failed (${res.status}) for "${query}"`)
-  }
-
-  const data = await res.json()
-  const [firstResult] = data.results ?? []
-
-  if (!firstResult) {
-    throw new Error(`No TMDB results found for "${query}"`)
-  }
-
-  return firstResult.id
-}
-
-async function fetchMovieDetails(tmdbId) {
-  const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}`
-  const res = await fetch(url)
-
-  if (!res.ok) {
-    throw new Error(`TMDB movie details request failed (${res.status}) for id ${tmdbId}`)
-  }
-
-  return res.json()
 }
 
 async function run() {
@@ -88,15 +46,7 @@ async function run() {
         continue
       }
 
-      const film = {
-        slug: slugify(details.title),
-        title: details.title,
-        description: details.overview || null,
-        genre: details.genres?.[0]?.name ?? null,
-        year: details.release_date ? parseInt(details.release_date.slice(0, 4), 10) : null,
-        poster_url: details.poster_path ? `${TMDB_IMAGE_BASE}${details.poster_path}` : null,
-        tmdb_id: tmdbId,
-      }
+      const film = buildFilmRecord(tmdbId, details)
 
       const { error: insertError } = await supabase.from('films').insert(film)
 
