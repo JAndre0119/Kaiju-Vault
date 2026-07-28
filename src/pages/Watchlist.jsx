@@ -1,10 +1,41 @@
 import { useState } from 'react'
 import { useWatchlist } from '../hooks/useWatchlist.js'
+import { useAuth } from '../hooks/useAuth.jsx'
+import { API_BASE_URL } from '../lib/apiBase.js'
 import FilmCard from '../components/FilmCard.jsx'
 
 function Watchlist() {
   const { watchlist, allFilms, loading, error, addToWatchlist, removeFromWatchlist } = useWatchlist()
+  const { token } = useAuth()
   const [actionError, setActionError] = useState(null)
+  const [recommendation, setRecommendation] = useState(null)
+  const [recommendationError, setRecommendationError] = useState(null)
+  const [recommendationLoading, setRecommendationLoading] = useState(false)
+
+  async function handleGetRecommendation() {
+    setRecommendationLoading(true)
+    setRecommendationError(null)
+    setRecommendation(null)
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/recommendations`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to get a recommendation.')
+      }
+
+      setRecommendation(data.recommendation || data.message)
+    } catch (err) {
+      setRecommendationError(err.message)
+    } finally {
+      setRecommendationLoading(false)
+    }
+  }
 
   const watchlistFilmIds = new Set(watchlist.map((film) => film.id))
 
@@ -54,6 +85,20 @@ function Watchlist() {
           ))}
         </div>
       )}
+
+      <div className="recommendation-section">
+        <button type="button" onClick={handleGetRecommendation} disabled={recommendationLoading}>
+          {recommendationLoading ? 'Thinking...' : 'Get a Recommendation'}
+        </button>
+
+        {recommendationError && <p className="error">{recommendationError}</p>}
+
+        {recommendation && (
+          <div className="recommendation-card">
+            <p>{recommendation}</p>
+          </div>
+        )}
+      </div>
 
       <h2>Add a Film</h2>
 
