@@ -8,14 +8,14 @@ function Watchlist() {
   const { watchlist, allFilms, loading, error, addToWatchlist, removeFromWatchlist } = useWatchlist()
   const { token } = useAuth()
   const [actionError, setActionError] = useState(null)
-  const [recommendation, setRecommendation] = useState(null)
+  const [recommendationResult, setRecommendationResult] = useState(null)
   const [recommendationError, setRecommendationError] = useState(null)
   const [recommendationLoading, setRecommendationLoading] = useState(false)
 
   async function handleGetRecommendation() {
     setRecommendationLoading(true)
     setRecommendationError(null)
-    setRecommendation(null)
+    setRecommendationResult(null)
 
     try {
       const res = await fetch(`${API_BASE_URL}/recommendations`, {
@@ -29,7 +29,7 @@ function Watchlist() {
         throw new Error(data.error || 'Failed to get a recommendation.')
       }
 
-      setRecommendation(data.recommendation || data.message)
+      setRecommendationResult(data)
     } catch (err) {
       setRecommendationError(err.message)
     } finally {
@@ -77,7 +77,7 @@ function Watchlist() {
               key={film.id}
               film={film}
               action={
-                <button type="button" onClick={() => handleRemove(film.id)}>
+                <button type="button" className="btn-danger" onClick={() => handleRemove(film.id)}>
                   Remove
                 </button>
               }
@@ -93,12 +93,38 @@ function Watchlist() {
 
         {recommendationError && <p className="error">{recommendationError}</p>}
 
-        {recommendation && (
+        {recommendationResult && (
           <div className="recommendation-card">
-            <p>{recommendation}</p>
+            {recommendationResult.message ? (
+              <p>{recommendationResult.message}</p>
+            ) : (
+              <>
+                <p>{recommendationResult.recommendation}</p>
+                {recommendationResult.film && (
+                  <div className="recommendation-film">
+                    <FilmCard
+                      film={recommendationResult.film}
+                      action={
+                        <button
+                          type="button"
+                          disabled={watchlistFilmIds.has(recommendationResult.film.id)}
+                          onClick={() => handleAdd(recommendationResult.film.id)}
+                        >
+                          {watchlistFilmIds.has(recommendationResult.film.id)
+                            ? 'In Watchlist'
+                            : 'Add to Watchlist'}
+                        </button>
+                      }
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>
+
+      <div className="action-divider" />
 
       <h2>Add a Film</h2>
 
